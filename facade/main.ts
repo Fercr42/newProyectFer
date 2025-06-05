@@ -1,10 +1,8 @@
 import promptSync from "prompt-sync";
 import { TaskManager } from "../manager/task-manager";
-import { getValidDate } from "../validators/validators";
-import { getValidID } from "../validators/validators";
-import { getValidString } from "../validators/validators";
-import { getValidPriority } from "../validators/validators";
+import { InputService } from "../services/InputService";
 import { Task } from "../models/Task";
+import { ConsoleUI } from "../ui/ConsoleUI";
 
 const prompt = promptSync();
 
@@ -15,34 +13,42 @@ class TaskManagerFacade {
     this.manager = new TaskManager();
   }
 
+  getManager(): TaskManager {
+    return this.manager;
+  }
+
   start(): void {
-    console.log("Welcome to the task Manager!");
-
-    console.log("------------------------");
-    console.log("1: Add a task");
-    console.log("------------------------");
-    console.log("2: Delete a task");
-    console.log("------------------------");
-    console.log("3: Mark task as completed");
-    console.log("------------------------");
-    console.log("4: Filter a task by due date // or tag ");
-    console.log("------------------------");
-    console.log("5: Get sorted tasks by priority");
-
     while (true) {
-      const choose = prompt("choose one of the following options: ");
+      ConsoleUI.taskManagerInterface();
+      ConsoleUI.showDivider();
+      const choose = inputService.getPrompt(
+        "choose one of the following options: "
+      );
       switch (choose) {
         case "1":
-          const taskName = getValidString("Insert the task's name: ");
-          const dueDateStr = getValidDate(
+          ConsoleUI.showDivider();
+          const taskName = inputService.getValidString(
+            "Insert the task's name: "
+          );
+          ConsoleUI.showDivider();
+          const dueDateStr = inputService.getValidDate(
             "Insert the task's due date (MM/DD/YY): "
           );
-          const taskTag = getValidString("Insert the task's tag: ");
-          const idNum = getValidID("Insert the task's id: ");
+          ConsoleUI.showDivider();
           const dateDate = new Date(dueDateStr);
-          const taskPriority = getValidPriority("Insert the task's priority: ");
+          const taskTag = inputService.getValidString(
+            "Insert the task's tag: "
+          );
+          ConsoleUI.showDivider();
+          const idNum = inputService.getValidID("Insert the task's id: ");
+          ConsoleUI.showDivider();
 
-          const task = new Task(
+          const taskPriority = inputService.getValidPriority(
+            "Insert the task's priority: "
+          );
+          ConsoleUI.showDivider();
+
+          const task = Task.createTask(
             taskName,
             dateDate,
             taskTag,
@@ -53,37 +59,64 @@ class TaskManagerFacade {
           this.manager.addTask(task);
           break;
         case "2":
-          const eliminateID = getValidID("Insert the task's id to remove: ");
+          ConsoleUI.showDivider();
+          const eliminateID = inputService.getValidID(
+            "Insert the task's id to remove: "
+          );
           this.manager.deleteTask(eliminateID);
+          ConsoleUI.showDivider();
           break;
         case "3":
-          const completedID = getValidID(
+          ConsoleUI.showDivider();
+          const completedID = inputService.getValidID(
             "Insert the task's id to mark as completed: "
           );
           this.manager.completeTask(completedID);
+          ConsoleUI.showDivider();
           break;
         case "4":
-          const option = prompt(
+          ConsoleUI.showDivider();
+          const option = inputService.getPrompt(
             "choose the option (1) filter by Tag, (2) filter by Date: "
           );
+          ConsoleUI.showDivider();
           let filtered: string;
           if (option === "1") {
-            filtered = prompt("Insert the Tag you want to filter: ");
-            console.log(this.manager.filterByTag(filtered));
+            ConsoleUI.showDivider();
+            filtered = inputService.getValidString(
+              "Insert the Tag you want to filter: "
+            );
+            this.manager.filterByTag(filtered);
+            ConsoleUI.showDivider();
             break;
           } else if (option === "2") {
-            filtered = prompt("Insert the Date you want to filter: ");
-            console.log(this.manager.filterByDate(filtered));
+            ConsoleUI.showDivider();
+            filtered = inputService.getValidDate(
+              "Insert the Date you want to filter: "
+            );
+            this.manager.filterByDate(filtered);
+            ConsoleUI.showDivider();
             break;
           } else {
-            console.log("Invalid option. Please choose 1 or 2.");
+            ConsoleUI.showDivider();
+            ConsoleUI.showError("Invalid option. Please choose 1 or 2.");
+            ConsoleUI.showDivider();
             break;
           }
         case "5":
+          ConsoleUI.showDivider();
           this.manager.showPriority();
+          ConsoleUI.showDivider();
+          break;
+        case "6":
+          ConsoleUI.showDivider();
+          this.manager.showStats();
+          ConsoleUI.showDivider();
           break;
         case "0":
-          console.log("Exiting...");
+          ConsoleUI.showDivider();
+          ConsoleUI.exit();
+          ConsoleUI.showDivider();
           return;
       }
     }
@@ -91,4 +124,5 @@ class TaskManagerFacade {
 }
 
 const taskManager = new TaskManagerFacade();
+const inputService = new InputService();
 taskManager.start();

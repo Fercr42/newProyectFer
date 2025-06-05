@@ -1,30 +1,37 @@
 import { Task } from "../models/Task";
+import {
+  Adder,
+  Stats,
+  Completer,
+  Remover,
+  Filterer,
+  Sorter,
+} from "../interfaces/interface";
+import { ConsoleUI } from "../ui/ConsoleUI";
 
-interface Adder {
-  addTask(task: Task): void;
-}
-
-interface Remover {
-  deleteTask(taskId: number): void;
-}
-
-interface Completer {
-  completeTask(taskId: number): void;
-}
-
-interface Filterer {
-  filterByDate(date: string): Task[];
-  filterByTag(tag: string): Task[];
-}
-
-class TaskManager implements Adder, Completer, Remover, Filterer {
+class TaskManager
+  implements Adder, Completer, Remover, Filterer, Sorter, Stats
+{
   private taskList: Task[] = [];
 
+  getTaskList(): Task[] {
+    return this.taskList;
+  }
+
   addTask(task: Task): void {
-    this.taskList.push(task);
-    console.log("------------------------");
-    console.log(`You have added ${task.name} to the task list.`);
-    console.log("------------------------");
+    const exist = this.taskList.find((t) => t.id === task.id);
+
+    if (exist) {
+      ConsoleUI.showError(
+        `Task ID or name already exist in the task list. Please try again.`
+      );
+    } else {
+      this.taskList.push(task);
+    }
+
+    ConsoleUI.showDivider();
+    ConsoleUI.showSuccess(`You have added ${task.name} to the task list.`);
+    ConsoleUI.showDivider();
   }
 
   deleteTask(taskId: number): void {
@@ -32,51 +39,88 @@ class TaskManager implements Adder, Completer, Remover, Filterer {
 
     if (task) {
       this.taskList = this.taskList.filter((t) => t.id !== taskId);
-      console.log(`You have deleted "${task.name}" from the task list.`);
+      ConsoleUI.showSuccess(
+        `You have deleted "${task.name}" from the task list.`
+      );
     } else {
-      console.log("There is no task with that ID. Please insert a valid ID.");
+      ConsoleUI.showError(
+        "There is no task with that ID. Please insert a valid ID."
+      );
     }
 
-    console.log("------------------------");
+    ConsoleUI.showDivider();
   }
-
   completeTask(taskId: number): void {
     const task = this.taskList.find((t) => t.id === taskId);
 
-    if (task) {
-      task.completed = true;
-      console.log("------------------------");
-      console.log(`${task.name} was marked as completed.`);
+    ConsoleUI.showDivider();
+
+    if (!task) {
+      ConsoleUI.showError("There is no task with that ID.");
+    } else if (task.completed) {
+      ConsoleUI.showTask(`${task.name} was already marked as completed.`);
     } else {
-      console.log("There is no task with that ID.");
+      task.completed = true;
+      ConsoleUI.showSuccess(`${task.name} was marked as completed.`);
     }
 
-    console.log("------------------------");
+    ConsoleUI.showDivider();
   }
 
-  filterByDate(date: string): Task[] {
+  filterByDate(date: string): void {
     const dateStr = new Date(date);
+
     if (isNaN(dateStr.getTime())) {
-      console.log("Invalid date Format");
-      return [];
+      ConsoleUI.showError("Invalid date Format");
+      return;
     }
 
-    return this.taskList.filter(
-      (t) => t.dueDate.getTime() === dateStr.getTime()
+    const filter = this.taskList.filter((t) => {
+      return (
+        t.dueDate.getDate() === dateStr.getDate() &&
+        t.dueDate.getMonth() === dateStr.getMonth() &&
+        t.dueDate.getFullYear() === dateStr.getFullYear()
+      );
+    });
+
+    if (filter.length === 0) {
+      ConsoleUI.showError("No task were found with that date");
+      return;
+    }
+    ConsoleUI.showSuccess(
+      `Showing filtered by Date: ${filter
+        .map(
+          (t) =>
+            `(Task name: ${t.name}) (ID: ${
+              t.id
+            }) (Date: ${t.dueDate.toLocaleDateString()}))`
+        )
+        .join(" --> ")}`
     );
   }
 
-  filterByTag(tag: string): Task[] {
-    return this.taskList.filter(
-      (t) => t.tag.toLowerCase() === tag.toLowerCase()
+  filterByTag(tag: string): void {
+    const filter = this.taskList.filter((t) => {
+      return t.tag.toLowerCase() === tag.toLowerCase();
+    });
+
+    if (filter.length === 0) {
+      ConsoleUI.showError("No task were found with that tag");
+      return;
+    }
+
+    ConsoleUI.showSuccess(
+      `Showing filtered by tag: ${filter
+        .map((t) => `(Task Name: ${t.name}) (ID: ${t.id}) (Tag: ${t.tag})`)
+        .join(" --> ")}`
     );
   }
 
-  private sortByPriority(): void {
+  sortByPriority(): void {
     const priorityHash: Record<string, number> = {
-      High: 1,
-      Medium: 2,
-      Low: 3,
+      high: 1,
+      medium: 2,
+      low: 3,
     };
 
     this.taskList.sort(
@@ -86,11 +130,49 @@ class TaskManager implements Adder, Completer, Remover, Filterer {
 
   showPriority(): void {
     this.sortByPriority();
-    console.log(`Tasked were sorted by priority`);
+    ConsoleUI.showSuccess(`Tasked were sorted by priority`);
 
     this.taskList.forEach((task) => {
       console.log(`${task.name} -- Priority ${task.priority}`);
     });
+  }
+
+  showStats(): void {
+    const completedTasks: Task[] = [];
+    const pendingTasks: Task[] = [];
+    const expiredTask: Task[] = [];
+
+    const todayDate = new Date();
+
+    for (const task of this.taskList) {
+      if (task.dueDate.getDate() < todayDate.getDate() && !task.completed) {
+        expiredTask.push(task);
+      } else if (task.completed) {
+        completedTasks.push(task);
+      } else {
+        pendingTasks.push(task);
+      }
+    }
+
+    ConsoleUI.showTask(
+      `Completed tasks: ${completedTasks
+        .map((t) => `${t.name} (ID: ${t.id})`)
+        .join(" --> ")}`
+    );
+    ConsoleUI.showDivider();
+
+    ConsoleUI.showTask(
+      `Pending tasks: ${pendingTasks
+        .map((t) => `${t.name} (ID: ${t.id})`)
+        .join(" --> ")}`
+    );
+
+    ConsoleUI.showDivider();
+    ConsoleUI.showTask(
+      `Expired tasks: ${expiredTask
+        .map((t) => `${t.name} (ID: ${t.id})`)
+        .join(" --> ")}`
+    );
   }
 }
 

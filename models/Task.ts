@@ -9,4 +9,14 @@ export class Task {
   ) {
     this.completed = false;
   }
+
+  static createTask(
+    name: string,
+    date: Date,
+    tag: string,
+    id: number,
+    priority: string
+  ): Task {
+    return new Task(name, date, tag, id, priority);
+  }
 }

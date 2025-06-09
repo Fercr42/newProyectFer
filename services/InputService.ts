@@ -1,4 +1,5 @@
 import promptSync from "prompt-sync";
+import chalk = require("chalk");
 const prompt = promptSync();
 import {
   isValidDate,
@@ -9,7 +10,7 @@ import {
 import { ConsoleUI } from "../ui/ConsoleUI";
 
 export class InputService {
-  getValidPriority(message: string): string {
+  static getValidPriority(message: string): string {
     let input: string;
 
     do {
@@ -24,13 +25,13 @@ export class InputService {
     return input.trim();
   }
 
-  getPrompt(message: string): string {
+  static getPrompt(message: string): string {
     const input = prompt(message);
 
     return input;
   }
 
-  getValidID(message: string): number {
+  static getValidID(message: string): number {
     let input: string;
 
     do {
@@ -42,7 +43,7 @@ export class InputService {
     return Number(input);
   }
 
-  getValidDate(message: string): string {
+  static getValidDate(message: string): string {
     let input: string;
 
     do {
@@ -55,7 +56,7 @@ export class InputService {
     return input.trim();
   }
 
-  getValidString(message: string): string {
+  static getValidString(message: string): string {
     let input: string;
 
     do {

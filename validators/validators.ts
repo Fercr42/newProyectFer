@@ -34,4 +34,6 @@ function isValidPriority(input: string): boolean {
   );
 }
 
+function pause(message: string) {}
+
 export { isValidDate, isValidString, isValidPriority, isValidID };

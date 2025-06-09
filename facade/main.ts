@@ -5,7 +5,6 @@ import { Task } from "../models/Task";
 import { ConsoleUI } from "../ui/ConsoleUI";
 
 const prompt = promptSync();
-
 class TaskManagerFacade {
   private manager: TaskManager;
 
@@ -19,33 +18,39 @@ class TaskManagerFacade {
 
   start(): void {
     while (true) {
+      console.clear();
+
       ConsoleUI.taskManagerInterface();
-      ConsoleUI.showDivider();
-      const choose = inputService.getPrompt(
+      ConsoleUI.showDivider(); //
+
+      const choose = InputService.getPrompt(
         "choose one of the following options: "
       );
+
       switch (choose) {
         case "1":
+          console.clear();
           ConsoleUI.showDivider();
-          const taskName = inputService.getValidString(
+          const taskName = InputService.getValidString(
             "Insert the task's name: "
           );
           ConsoleUI.showDivider();
-          const dueDateStr = inputService.getValidDate(
+          const dueDateStr = InputService.getValidDate(
             "Insert the task's due date (MM/DD/YY): "
           );
           ConsoleUI.showDivider();
           const dateDate = new Date(dueDateStr);
-          const taskTag = inputService.getValidString(
+          const taskTag = InputService.getValidString(
             "Insert the task's tag: "
           );
           ConsoleUI.showDivider();
-          const idNum = inputService.getValidID("Insert the task's id: ");
+          const idNum = InputService.getValidID("Insert the task's id: ");
           ConsoleUI.showDivider();
-
-          const taskPriority = inputService.getValidPriority(
+          const taskPriority = InputService.getValidPriority(
             "Insert the task's priority: "
           );
+
+          console.clear();
           ConsoleUI.showDivider();
 
           const task = Task.createTask(
@@ -55,68 +60,89 @@ class TaskManagerFacade {
             idNum,
             taskPriority
           );
-
           this.manager.addTask(task);
+
+          ConsoleUI.showDivider();
+          InputService.getPrompt("Press Enter to return to menu...");
           break;
+
         case "2":
           ConsoleUI.showDivider();
-          const eliminateID = inputService.getValidID(
+          const eliminateID = InputService.getValidID(
             "Insert the task's id to remove: "
           );
+          console.clear();
           this.manager.deleteTask(eliminateID);
+
           ConsoleUI.showDivider();
+          InputService.getPrompt("");
           break;
+
         case "3":
           ConsoleUI.showDivider();
-          const completedID = inputService.getValidID(
+          const completedID = InputService.getValidID(
             "Insert the task's id to mark as completed: "
           );
+          console.clear();
           this.manager.completeTask(completedID);
+
           ConsoleUI.showDivider();
+          InputService.getPrompt("Press enter to return to menu...");
           break;
+
         case "4":
           ConsoleUI.showDivider();
-          const option = inputService.getPrompt(
+          const option = InputService.getPrompt(
             "choose the option (1) filter by Tag, (2) filter by Date: "
           );
-          ConsoleUI.showDivider();
           let filtered: string;
           if (option === "1") {
             ConsoleUI.showDivider();
-            filtered = inputService.getValidString(
+            filtered = InputService.getValidString(
               "Insert the Tag you want to filter: "
             );
+            console.clear();
             this.manager.filterByTag(filtered);
             ConsoleUI.showDivider();
-            break;
+            InputService.getPrompt("Press enter to return to menu...");
           } else if (option === "2") {
             ConsoleUI.showDivider();
-            filtered = inputService.getValidDate(
+            filtered = InputService.getValidDate(
               "Insert the Date you want to filter: "
             );
+            console.clear();
             this.manager.filterByDate(filtered);
             ConsoleUI.showDivider();
-            break;
+            InputService.getPrompt("Press enter to return to menu...");
           } else {
             ConsoleUI.showDivider();
+            console.clear();
             ConsoleUI.showError("Invalid option. Please choose 1 or 2.");
             ConsoleUI.showDivider();
-            break;
+            InputService.getPrompt("Press enter to return to menu...");
           }
+          break;
+
         case "5":
           ConsoleUI.showDivider();
+          console.clear();
           this.manager.showPriority();
           ConsoleUI.showDivider();
+          InputService.getPrompt("Press enter to return to menu...");
           break;
+
         case "6":
           ConsoleUI.showDivider();
+          console.clear();
           this.manager.showStats();
           ConsoleUI.showDivider();
+          InputService.getPrompt("Press enter to return to menu...");
           break;
+
         case "0":
           ConsoleUI.showDivider();
-          ConsoleUI.exit();
-          ConsoleUI.showDivider();
+          console.clear();
+          InputService.getPrompt("Exiting...");
           return;
       }
     }
@@ -124,5 +150,5 @@ class TaskManagerFacade {
 }
 
 const taskManager = new TaskManagerFacade();
-const inputService = new InputService();
+
 taskManager.start();

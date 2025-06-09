@@ -1,38 +1,48 @@
+const chalk = require("chalk");
+
 export class ConsoleUI {
   static showDivider(): void {
     console.log("------------------------");
   }
 
   static exit(): void {
-    console.log("Exiting...");
+    console.log(chalk.bgBlue.white("Exiting..."));
   }
 
   static showError(message: string): void {
-    console.log(`❌ ${message}`);
+    console.log(chalk.bold.red(`❌ ${message}`));
   }
 
   static showTask(message: string): void {
-    console.log(`${message}`);
+    console.log(chalk.bold.green(`${message}`));
   }
 
   static showSuccess(message: string): void {
-    console.log(`✅ ${message}`);
+    console.log(chalk.bold.green(`✅ ${message}`));
   }
 
   static taskManagerInterface(): void {
-    console.log("Welcome to the task Manager!");
+    console.log(chalk.blueBright.bold("Welcome to the task Manager!"));
 
     ConsoleUI.showDivider();
-    console.log("1: Add a task");
+    console.log(chalk.bold.underline.magenta("1: Add a task"));
     ConsoleUI.showDivider();
-    console.log("2: Delete a task");
+    console.log(chalk.bold.underline.magenta("2: Delete a task"));
     ConsoleUI.showDivider();
-    console.log("3: Mark task as completed");
+    console.log(chalk.bold.underline.magenta("3: Mark task as completed"));
     ConsoleUI.showDivider();
-    console.log("4: Filter a task by due date // or tag ");
+    console.log(
+      chalk.bold.underline.magenta("4: Filter a task by due date // or tag ")
+    );
     ConsoleUI.showDivider();
-    console.log("5: Get sorted tasks by priority");
+    console.log(
+      chalk.bold.underline.magenta("5: Get sorted tasks by priority")
+    );
     ConsoleUI.showDivider();
-    console.log("6: Get status for your task list");
+    console.log(
+      chalk.bold.underline.magenta("6: Get status for your task list")
+    );
+    ConsoleUI.showDivider();
+    console.log(chalk.bold.underline.magenta("0: To exit..."));
   }
 }

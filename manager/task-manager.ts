@@ -1,3 +1,4 @@
+import { InputService } from "./../services/InputService";
 import { Task } from "../models/Task";
 import {
   Adder,
@@ -25,6 +26,7 @@ class TaskManager
       ConsoleUI.showError(
         `Task ID or name already exist in the task list. Please try again.`
       );
+      InputService.getPrompt("Press enter to return to menu...");
     } else {
       this.taskList.push(task);
     }
